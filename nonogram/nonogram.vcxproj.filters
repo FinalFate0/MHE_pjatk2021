@@ -18,5 +18,18 @@
     <ClCompile Include="nonogram.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="nonogram_problem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="nonogram_problem.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="cluedata.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
