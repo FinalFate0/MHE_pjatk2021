@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     }
 
     try {
-        if (test_clueset.first.empty() == true && test_clueset.second.empty() == true) {
+        if (test_clueset.first.empty() == true || test_clueset.second.empty() == true) {
             throw std::invalid_argument("Provided clueset is invalid");
         }
     }

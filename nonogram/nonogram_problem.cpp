@@ -203,16 +203,16 @@ board_t brute_force(clue_t clueset, int iterations) {
     double best_cost = 10000;
     board_t best_solution;
 
-    print_board(candidate);
-    cout << "cost: " << cost_function(clueset, board_to_clueset(candidate)) << endl;
+    //print_board(candidate);
+    //cout << "cost: " << cost_function(clueset, board_to_clueset(candidate)) << endl;
     
-    cout << endl;
+    //cout << endl;
 
     for (int i = 0; i < iterations; i++) {
         candidate = next_solution_candidate(candidate);
-        print_board(candidate);
+        //print_board(candidate);
         double candidate_cost = cost_function(clueset, board_to_clueset(candidate));
-        cout << "cost: " << candidate_cost << endl;
+        //cout << "cost: " << candidate_cost << endl;
         if (candidate_cost < best_cost) {
             best_solution = candidate;
             best_cost = candidate_cost;
@@ -234,16 +234,16 @@ board_t brute_force(clue_t clueset) {
     double best_cost = 10000;
     board_t best_solution;
 
-    print_board(candidate);
-    cout << "cost: " << cost_function(clueset, board_to_clueset(candidate)) << endl << endl;
+    //print_board(candidate);
+    //cout << "cost: " << cost_function(clueset, board_to_clueset(candidate)) << endl << endl;
 
-    cout << endl;
+    //cout << endl;
 
     for (int i = 0; i < pow(2, size_x*size_y); i++) {
         candidate = next_solution_candidate(candidate);
-        print_board(candidate);
+        //print_board(candidate);
         double candidate_cost = cost_function(clueset, board_to_clueset(candidate));
-        cout << "cost: " << candidate_cost << endl << endl;
+        //cout << "cost: " << candidate_cost << endl << endl;
         if (candidate_cost < best_cost) {
             best_solution = candidate;
             best_cost = candidate_cost;
