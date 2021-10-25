@@ -3,6 +3,10 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <random>
+
+std::random_device rd;
+std::mt19937 gen(rd());
 
 double cost_function(clue_t target, clue_t candidate) {
     double cost = 0.0;
@@ -18,6 +22,25 @@ double cost_function(clue_t target, clue_t candidate) {
             cost += 0.0;
         }
         else {
+            int bigger_size;
+            if (candidate_x.at(i).size() > target_x.at(i).size()) {
+                bigger_size = candidate_x.at(i).size();
+            }
+            else {
+                bigger_size = target_x.at(i).size();;
+            }
+            for (int j = 0; j < bigger_size; j++) {
+                if (j >= candidate_x.at(i).size()) {
+                    cost += (target_x.at(i).at(j));
+                }
+                else if (j >= target_x.at(i).size()) {
+                    cost += (candidate_x.at(i).at(j));
+                }
+                else {
+                    cost += (std::abs(target_x.at(i).at(j) - candidate_x.at(i).at(j)));
+                }
+            }
+
             for (auto& x : target_x.at(i)) {
                 sum_target += x;
                 count_target++;
@@ -44,6 +67,26 @@ double cost_function(clue_t target, clue_t candidate) {
             cost += 0.0;
         }
         else {
+            int bigger_size;
+            if (candidate_y.at(i).size() > target_y.at(i).size()) {
+                bigger_size = candidate_y.at(i).size();
+            }
+            else {
+                bigger_size = target_y.at(i).size();;
+            }
+
+            for (int j = 0; j < bigger_size; j++) {
+                if (j >= candidate_y.at(i).size()) {
+                    cost += (target_y.at(i).at(j));
+                }
+                else if (j >= target_y.at(i).size()) {
+                    cost += (candidate_y.at(i).at(j));
+                }
+                else {
+                    cost += (std::abs(target_y.at(i).at(j) - candidate_y.at(i).at(j)));
+                }
+            }
+
             for (auto& y : target_y.at(i)) {
                 sum_target += y;
                 count_target++;
@@ -60,6 +103,10 @@ double cost_function(clue_t target, clue_t candidate) {
             double count_evaluation = count_difference / size_y;
 
             cost += sum_evaluation + count_evaluation;
+
+
+
+            //compare every position
         }
     }
     return cost;
@@ -72,45 +119,48 @@ clue_t board_to_clueset(board_t board) {
 
     axis_t result_x, result_y;
 
-    for (int i = 0; i < size_x; i++) {
+    for (int i = 0; i < size_y; i++) {
         std::vector<int> clue = { 0 };
         bool line = false;
-
-        for (int j = 0; j < size_y; j++) {
+        int index = 0;
+        for (int j = 0; j < size_x; j++) {
             if (board.at(i).at(j) == true && line == false) {
                 line = true;
-                if (clue.at(i) != 0) {
+                if (index >= clue.size() || clue.at(index) != 0) {
                     clue.push_back(0);
                 }
-                clue.at(i)++;
+                clue.at(index)++;
             }
             else if (board.at(i).at(j) == true && line == true) {
-                clue.at(i)++;
+                clue.at(index)++;
             }
             else if (board.at(i).at(j) == false && line == true) {
                 line = false;
+                index++;
             }
         }
         result_x.push_back(clue);
     }
 
-    for (int i = 0; i < size_y; i++) {
+    for (int i = 0; i < size_x; i++) {
         std::vector<int> clue = { 0 };
         bool line = false;
-
-        for (int j = 0; j < size_x; j++) {
+        int index = 0;
+        for (int j = 0; j < size_y; j++) {
             if (board.at(j).at(i) == true && line == false) {
                 line = true;
-                if (clue.at(i) != 0) {
+                if (index >= clue.size() || clue.at(index) != 0) {
                     clue.push_back(0);
                 }
-                clue.at(i)++;
+
+                clue.at(index)++;
             }
             else if (board.at(j).at(i) == true && line == true) {
-                clue.at(i)++;
+                clue.at(index)++;
             }
             else if (board.at(j).at(i) == false && line == true) {
                 line = false;
+                index++;
             }
         }
         result_y.push_back(clue);
@@ -119,16 +169,106 @@ clue_t board_to_clueset(board_t board) {
     return std::make_pair(result_x, result_y);
 }
 
-board_t next_solution_candidate(board_t solution) {
+board_t next_solution_candidate(board_t working_board) {
+    board_t next_candidate = working_board;
+    int size_x = next_candidate.at(0).size();
+    int size_y = next_candidate.size();
 
-    //std::next_permutation(solution.begin(), solution.end());
+    // idx =  y*szerokosc + x
 
+    //x, y <- idx
+    // x = idx % szerokosc
+    // y = idx / szerokosc // bez u³amków
+
+    for (int i = 0; i < size_x*size_y; i++) {
+        int idx = i % size_x;
+        int idy = i / size_x;
+        if (next_candidate.at(idy).at(idx) == false) {
+            next_candidate.at(idy).at(idx) = true;
+            break;
+        }
+        else {
+            next_candidate.at(idy).at(idx) = false;
+        }
+    }
+    return next_candidate;
+}
+
+board_t brute_force(clue_t clueset, int iterations) {
+    using namespace std;
+
+    int size_x = clueset.first.size(), size_y = clueset.second.size();
+    board_t candidate(size_y, std::vector<bool>(size_x, false));
+
+    double best_cost = 10000;
+    board_t best_solution;
+
+    print_board(candidate);
+    cout << "cost: " << cost_function(clueset, board_to_clueset(candidate)) << endl;
+    
+    cout << endl;
+
+    for (int i = 0; i < iterations; i++) {
+        candidate = next_solution_candidate(candidate);
+        print_board(candidate);
+        double candidate_cost = cost_function(clueset, board_to_clueset(candidate));
+        cout << "cost: " << candidate_cost << endl;
+        if (candidate_cost < best_cost) {
+            best_solution = candidate;
+            best_cost = candidate_cost;
+            if (best_cost == 0) {
+                break;
+            }
+        }
+    }
+
+    return best_solution;
 }
 
 board_t brute_force(clue_t clueset) {
-    int size_x = clueset.first.size(), size_y = clueset.second.size();
-    board_t solution(size_y, std::vector<bool>(size_x, false));
+    using namespace std;
 
+    int size_x = clueset.first.size(), size_y = clueset.second.size();
+    board_t candidate(size_y, std::vector<bool>(size_x, false));
+
+    double best_cost = 10000;
+    board_t best_solution;
+
+    print_board(candidate);
+    cout << "cost: " << cost_function(clueset, board_to_clueset(candidate)) << endl << endl;
+
+    cout << endl;
+
+    for (int i = 0; i < pow(2, size_x*size_y); i++) {
+        candidate = next_solution_candidate(candidate);
+        print_board(candidate);
+        double candidate_cost = cost_function(clueset, board_to_clueset(candidate));
+        cout << "cost: " << candidate_cost << endl << endl;
+        if (candidate_cost < best_cost) {
+            best_solution = candidate;
+            best_cost = candidate_cost;
+            if (best_cost == 0) {
+                break;
+            }
+        }
+    }
+
+    return best_solution;
+}
+
+board_t gen_rand_board(int size_x, int size_y) {
+    std::uniform_int_distribution<> distrib(0, 1);
+
+    board_t board(size_y, std::vector<bool>(size_x, false));
+    for (int i = 0; i < size_y; i++) {
+        for (int j = 0; j < size_x; j++) {
+            if (distrib(gen) == 1) {
+                board.at(i).at(j) = true;
+            }
+        }
+    }
+
+    return board;
 }
 
 clue_t load_clueset(std::string filename) {
@@ -184,5 +324,28 @@ void print_clueset(clue_t clueset) {
     }
 
     cout << "--end of clueset--" << endl << endl;
-    cout << "board size: " << clueset_x.size() << "x" << clueset_y.size() << endl;
+    cout << "board size: " << clueset_y.size() << "x" << clueset_x.size() << endl;
+}
+
+void print_board(board_t board) {
+    using namespace std;
+
+    int size_x = board.at(0).size();
+    int size_y = board.size();
+
+    char filled = char(219);
+    char empty = char(176);
+
+    for (int i = 0; i < size_y; i++) {
+
+        for (int j = 0; j < size_x; j++) {
+            if (board.at(i).at(j) == true) {
+                cout << filled<< filled;
+            }
+            else {
+                cout << empty << empty;
+            }
+        }
+        cout << endl;
+    }
 }
