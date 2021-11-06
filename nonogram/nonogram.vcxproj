@@ -110,7 +110,11 @@
     <ClInclude Include="nonogram_problem.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="cluedata.txt" />
+    <Text Include="3x3.txt" />
+    <Text Include="3x4.txt" />
+    <Text Include="4x4.txt" />
+    <Text Include="5x4.txt" />
+    <Text Include="5x5.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
