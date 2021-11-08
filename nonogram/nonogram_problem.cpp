@@ -169,6 +169,10 @@ clue_t board_to_clueset(board_t board) {
     return std::make_pair(result_x, result_y);
 }
 
+//neighbour list
+//list of mirrors of current board with one bit switched (25 if 5x5)
+
+
 board_t next_solution_candidate(board_t working_board) {
     board_t next_candidate = working_board;
     int size_x = next_candidate.at(0).size();
