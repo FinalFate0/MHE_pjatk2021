@@ -19,13 +19,17 @@ clue_t board_to_clueset(board_t board);
 
 board_t next_solution_candidate(board_t solution);
 
+std::vector<board_t> neighbour_list(board_t main_board);
+
 board_t gen_rand_board(int size_x, int size_y);
 
 board_t brute_force(clue_t clueset, int iterations);
 
 board_t brute_force(clue_t clueset);
 
+board_t hillclimb(clue_t clueset);
 
+board_t hillclimb_stch(clue_t clueset);
 
 clue_t load_clueset(std::string filename);
 

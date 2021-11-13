@@ -169,8 +169,6 @@ clue_t board_to_clueset(board_t board) {
     return std::make_pair(result_x, result_y);
 }
 
-//neighbour list
-//list of mirrors of current board with one bit switched (25 if 5x5)
 
 
 board_t next_solution_candidate(board_t working_board) {
@@ -196,6 +194,21 @@ board_t next_solution_candidate(board_t working_board) {
         }
     }
     return next_candidate;
+}
+
+std::vector<board_t> neighbour_list(board_t main_board) {
+    //list of mirrors of current board with one bit switched (25 if 5x5)
+
+    int size_x = main_board.at(0).size(), size_y = main_board.size();
+    std::vector<board_t> neighbours;
+    for (int i = 0; i < size_x * size_y; i++) {
+        int idx = i % size_x;
+        int idy = i / size_x;
+        board_t temp_board = main_board;
+        temp_board.at(idy).at(idx) = !temp_board.at(idy).at(idx);
+        neighbours.push_back(temp_board);
+    }
+    return neighbours;
 }
 
 board_t brute_force(clue_t clueset, int iterations) {
@@ -258,6 +271,68 @@ board_t brute_force(clue_t clueset) {
     }
 
     return best_solution;
+}
+
+board_t hillclimb(clue_t clueset) {
+    using namespace std;
+
+    int size_x = clueset.first.size(), size_y = clueset.second.size();
+
+    board_t current_board = gen_rand_board(size_x, size_y);
+    double best_cost = cost_function(clueset, board_to_clueset(current_board));
+
+    bool found_better = true;
+    while (found_better) {
+        vector<board_t> neighbors = neighbour_list(current_board);
+
+        //print_board(current_board);
+        //cout << "cost: " << best_cost << endl << endl;
+
+        for (int i = 0; i < size_x*size_y; i++) {
+            double current_cost = cost_function(clueset, board_to_clueset(neighbors.at(i)));
+
+            if (current_cost < best_cost) {
+                best_cost = current_cost;
+                current_board = neighbors.at(i);
+                found_better = true;
+                break;
+            }
+            found_better = false;
+        }
+    }
+    return current_board;
+}
+
+board_t hillclimb_stch(clue_t clueset) {
+    using namespace std;
+
+    int size_x = clueset.first.size(), size_y = clueset.second.size();
+    uniform_int_distribution<> distrib(0, (size_x*size_y)-1);
+
+    board_t current_board = gen_rand_board(size_x, size_y);
+    double best_cost = cost_function(clueset, board_to_clueset(current_board));
+
+    bool found_better = true;
+    while (found_better) {
+        vector<board_t> neighbors = neighbour_list(current_board);
+
+        //print_board(current_board);
+        //cout << "cost: " << best_cost << endl << endl;
+
+        for (int i = 0; i < 1000; i++) {
+            auto generated_neighbour = neighbors.at(distrib(gen));
+            double current_cost = cost_function(clueset, board_to_clueset(generated_neighbour));
+
+            if (current_cost < best_cost) {
+                best_cost = current_cost;
+                current_board = generated_neighbour;
+                found_better = true;
+                break;
+            }
+            found_better = false;
+        }
+    }
+    return current_board;
 }
 
 board_t gen_rand_board(int size_x, int size_y) {
