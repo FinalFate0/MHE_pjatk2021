@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
         std::string arg = argv[i];
         if ((arg == "-i") || (arg == "--input")) {
             if (i + 1 < argc) {
-                test_clueset = load_clueset(argv[++i]); // Increment 'i' so we don't get the argument as the next argv[i].
+                test_clueset = load_clueset(argv[++i]);
                 try {
                     if (test_clueset.first.empty() == true || test_clueset.second.empty() == true) {
                         throw std::invalid_argument("Provided clueset is invalid or missing");
