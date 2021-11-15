@@ -217,24 +217,40 @@ board_t brute_force(clue_t clueset, int iterations) {
     int size_x = clueset.first.size(), size_y = clueset.second.size();
     board_t candidate(size_y, std::vector<bool>(size_x, false));
 
-    double best_cost = 10000;
+    double best_cost = 100000;
     board_t best_solution;
 
     //print_board(candidate);
     //cout << "cost: " << cost_function(clueset, board_to_clueset(candidate)) << endl;
-    
-    //cout << endl;
 
-    for (int i = 0; i < iterations; i++) {
-        candidate = next_solution_candidate(candidate);
-        //print_board(candidate);
-        double candidate_cost = cost_function(clueset, board_to_clueset(candidate));
-        //cout << "cost: " << candidate_cost << endl;
-        if (candidate_cost < best_cost) {
-            best_solution = candidate;
-            best_cost = candidate_cost;
-            if (best_cost == 0) {
-                break;
+    //cout << endl;
+    if (iterations == 0) {
+        for (int i = 0; i < pow(2, size_x * size_y); i++) {
+            candidate = next_solution_candidate(candidate);
+            //print_board(candidate);
+            double candidate_cost = cost_function(clueset, board_to_clueset(candidate));
+            //cout << "cost: " << candidate_cost << endl;
+            if (candidate_cost < best_cost) {
+                best_solution = candidate;
+                best_cost = candidate_cost;
+                if (best_cost == 0) {
+                    break;
+                }
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < iterations; i++) {
+            candidate = next_solution_candidate(candidate);
+            //print_board(candidate);
+            double candidate_cost = cost_function(clueset, board_to_clueset(candidate));
+            //cout << "cost: " << candidate_cost << endl;
+            if (candidate_cost < best_cost) {
+                best_solution = candidate;
+                best_cost = candidate_cost;
+                if (best_cost == 0) {
+                    break;
+                }
             }
         }
     }
@@ -242,38 +258,7 @@ board_t brute_force(clue_t clueset, int iterations) {
     return best_solution;
 }
 
-board_t brute_force(clue_t clueset) {
-    using namespace std;
-
-    int size_x = clueset.first.size(), size_y = clueset.second.size();
-    board_t candidate(size_y, std::vector<bool>(size_x, false));
-
-    double best_cost = 10000;
-    board_t best_solution;
-
-    //print_board(candidate);
-    //cout << "cost: " << cost_function(clueset, board_to_clueset(candidate)) << endl << endl;
-
-    //cout << endl;
-
-    for (int i = 0; i < pow(2, size_x*size_y); i++) {
-        candidate = next_solution_candidate(candidate);
-        //print_board(candidate);
-        double candidate_cost = cost_function(clueset, board_to_clueset(candidate));
-        //cout << "cost: " << candidate_cost << endl << endl;
-        if (candidate_cost < best_cost) {
-            best_solution = candidate;
-            best_cost = candidate_cost;
-            if (best_cost == 0) {
-                break;
-            }
-        }
-    }
-
-    return best_solution;
-}
-
-board_t hillclimb(clue_t clueset) {
+board_t hillclimb(clue_t clueset, int iterations) {
     using namespace std;
 
     int size_x = clueset.first.size(), size_y = clueset.second.size();
@@ -282,7 +267,10 @@ board_t hillclimb(clue_t clueset) {
     double best_cost = cost_function(clueset, board_to_clueset(current_board));
 
     bool found_better = true;
-    while (found_better) {
+    int i = 0;
+
+ 
+    while (found_better && i < iterations) {
         vector<board_t> neighbors = neighbour_list(current_board);
 
         //print_board(current_board);
@@ -299,11 +287,12 @@ board_t hillclimb(clue_t clueset) {
             }
             found_better = false;
         }
+        i++;
     }
     return current_board;
 }
 
-board_t hillclimb_stch(clue_t clueset) {
+board_t hillclimb_stch(clue_t clueset, int iterations) {
     using namespace std;
 
     int size_x = clueset.first.size(), size_y = clueset.second.size();
@@ -319,7 +308,7 @@ board_t hillclimb_stch(clue_t clueset) {
         //print_board(current_board);
         //cout << "cost: " << best_cost << endl << endl;
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < iterations; i++) {
             auto generated_neighbour = neighbors.at(distrib(gen));
             double current_cost = cost_function(clueset, board_to_clueset(generated_neighbour));
 

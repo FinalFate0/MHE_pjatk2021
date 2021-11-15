@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
     clue_t test_clueset;
     board_t solution;
     std::string method;
+    long iterations = 0;
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -99,18 +100,38 @@ int main(int argc, char** argv) {
                 return 1;
             }
         }
+        else if ((arg == "-it") || (arg == "--iterations")) {
+            if (i + 1 < argc) {
+                try {
+                    i++;
+                    char* d;
+                    iterations = std::strtol(argv[i], &d, 10);
+                    if (*d) {
+                        throw std::invalid_argument("Iterations must be a positive number");
+                    }
+                }
+                catch (std::invalid_argument e) {
+                    std::cerr << e.what() << std::endl;
+                    return 2;
+                }
+            }
+            else {
+                std::cerr << "--iterations option requires one argument" << std::endl;
+                return 1;
+            }
+        }
     }
 
     auto st_clock_before = steady_clock::now();
 
     if (method == "bruteforce") {
-        solution = brute_force(test_clueset);
+        solution = brute_force(test_clueset, iterations);
     }
     else if (method == "hillclimb") {
-        solution = hillclimb(test_clueset);
+        solution = hillclimb(test_clueset, iterations);
     }
     else if (method == "hillclimb_stch") {
-        solution = hillclimb_stch(test_clueset);
+        solution = hillclimb_stch(test_clueset, iterations);
     }
     else {
         std::cerr << "Method wasn't provided";

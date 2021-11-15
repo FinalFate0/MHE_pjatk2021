@@ -102,6 +102,11 @@
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="nonogram.cpp" />
     <ClCompile Include="nonogram_problem.cpp" />
@@ -110,6 +115,7 @@
     <ClInclude Include="nonogram_problem.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="10x10.txt" />
     <Text Include="3x3.txt" />
     <Text Include="3x4.txt" />
     <Text Include="4x4.txt" />
