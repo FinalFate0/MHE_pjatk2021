@@ -33,6 +33,7 @@ int main(int argc, char** argv) {
     board_t solution;
     std::string method;
     long iterations = 0;
+    long tabu_size = 0;
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -41,12 +42,12 @@ int main(int argc, char** argv) {
                 test_clueset = load_clueset(argv[++i]);
                 try {
                     if (test_clueset.first.empty() == true || test_clueset.second.empty() == true) {
-                        throw std::invalid_argument("Provided clueset is invalid or missing");
+                        throw std::invalid_argument("provided --clueset is invalid or missing");
                     }
                 }
                 catch (std::invalid_argument e) {
                     std::cerr << e.what() << std::endl;
-                    std::cerr << "Generating random 5x5 clueset..." << std::endl;
+                    std::cerr << "generating random 5x5 clueset as fallback..." << std::endl;
 
                     board_t generated_board = gen_rand_board(5, 5);
                     test_clueset = board_to_clueset(generated_board);
@@ -63,13 +64,13 @@ int main(int argc, char** argv) {
                     std::cout << "Outputting to file..." << std::endl;
                     auto success = std::freopen(argv[++i], "w", stdout);
                     if (success == NULL) {
-                        throw std::runtime_error("Opening output file failed");
+                        throw std::runtime_error("opening --output file failed");
                     }
 
                 }
                 catch (std::runtime_error e) {
                     std::cerr << e.what() << std::endl;
-                    std::cerr << "Outputting to console as fallback..." << std::endl;
+                    std::cerr << "outputting to console as fallback..." << std::endl;
                 }
             }
             else {
@@ -83,11 +84,12 @@ int main(int argc, char** argv) {
                     i++;
                     if ((strcmp(argv[i], "bruteforce") == 0) || 
                         (strcmp(argv[i], "hillclimb") == 0) || 
-                        (strcmp(argv[i], "hillclimb_stch") == 0)) {
+                        (strcmp(argv[i], "hillclimb_stch") == 0) ||
+                        (strcmp(argv[i], "tabu") == 0)) {
                         method = std::string(argv[i]);
                     }
                     else {
-                        throw std::invalid_argument("Provided method doesn't exist");
+                        throw std::invalid_argument("provided --method doesn't exist");
                     }
                 }
                 catch (std::invalid_argument e) {
@@ -106,8 +108,8 @@ int main(int argc, char** argv) {
                     i++;
                     char* d;
                     iterations = std::strtol(argv[i], &d, 10);
-                    if (*d) {
-                        throw std::invalid_argument("Iterations must be a positive number");
+                    if (*d || iterations < 0) {
+                        throw std::invalid_argument("--iterations must be a positive number");
                     }
                 }
                 catch (std::invalid_argument e) {
@@ -117,6 +119,26 @@ int main(int argc, char** argv) {
             }
             else {
                 std::cerr << "--iterations option requires one argument" << std::endl;
+                return 1;
+            }
+        }
+        else if ((arg == "-ts") || (arg == "--tabusize")) {
+            if (i + 1 < argc) {
+                try {
+                    i++;
+                    char* d;
+                    tabu_size = std::strtol(argv[i], &d, 10);
+                    if (*d || tabu_size < 0) {
+                        throw std::invalid_argument("--tabusize must be a positive number");
+                    }
+                }
+                catch (std::invalid_argument e) {
+                    std::cerr << e.what() << std::endl;
+                    return 2;
+                }
+            }
+            else {
+                std::cerr << "--tabusize option requires one argument" << std::endl;
                 return 1;
             }
         }
@@ -133,8 +155,15 @@ int main(int argc, char** argv) {
     else if (method == "hillclimb_stch") {
         solution = hillclimb_stch(test_clueset, iterations);
     }
+    else if (method == "tabu") {
+        if (tabu_size == 0) {
+            std::cerr << "\"" << method << "\" method requires --tabusize argument" << std::endl;
+            return 1;
+        }
+        solution = tabu(test_clueset, iterations, tabu_size);
+    }
     else {
-        std::cerr << "Method wasn't provided";
+        std::cerr << "--method wasn't provided";
         return 2;
     }
 
@@ -143,8 +172,6 @@ int main(int argc, char** argv) {
 
     //print_clueset(test_clueset);
     //std::cout << std::endl << std::endl;
-
-    //brute force loaded clueset
 
 
     std::cout << "best solution: " << std::endl << std::endl;

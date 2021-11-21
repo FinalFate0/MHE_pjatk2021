@@ -4,6 +4,7 @@
 #include <sstream>
 #include <algorithm>
 #include <random>
+#include <deque>
 
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -276,16 +277,16 @@ board_t hillclimb(clue_t clueset, int iterations) {
         //print_board(current_board);
         //cout << "cost: " << best_cost << endl << endl;
 
-        for (int i = 0; i < size_x*size_y; i++) {
-            double current_cost = cost_function(clueset, board_to_clueset(neighbors.at(i)));
+        found_better = false;
+        for (int j = 0; j < size_x*size_y; j++) {
+            double current_cost = cost_function(clueset, board_to_clueset(neighbors.at(j)));
 
             if (current_cost < best_cost) {
                 best_cost = current_cost;
-                current_board = neighbors.at(i);
+                current_board = neighbors.at(j);
                 found_better = true;
                 break;
             }
-            found_better = false;
         }
         i++;
     }
@@ -308,6 +309,7 @@ board_t hillclimb_stch(clue_t clueset, int iterations) {
         //print_board(current_board);
         //cout << "cost: " << best_cost << endl << endl;
 
+        found_better = false;
         for (int i = 0; i < iterations; i++) {
             auto generated_neighbour = neighbors.at(distrib(gen));
             double current_cost = cost_function(clueset, board_to_clueset(generated_neighbour));
@@ -318,8 +320,52 @@ board_t hillclimb_stch(clue_t clueset, int iterations) {
                 found_better = true;
                 break;
             }
-            found_better = false;
         }
+    }
+    return current_board;
+}
+
+board_t tabu(clue_t clueset, int iterations, int tabu_size) {
+    using namespace std;
+
+    int size_x = clueset.first.size(), size_y = clueset.second.size();
+
+    board_t current_board = gen_rand_board(size_x, size_y);
+    double best_cost = cost_function(clueset, board_to_clueset(current_board));
+
+    deque<board_t> tabu(tabu_size, current_board);
+
+    bool found_better = true;
+    int i = 0;
+
+    while (found_better && i < iterations) {
+        vector<board_t> neighbors = neighbour_list(current_board);
+
+        //print_board(current_board);
+        //cout << "cost: " << best_cost << endl << endl;
+
+        found_better = false;
+        for (int j = 0; j < size_x * size_y; j++) {
+            double current_cost = cost_function(clueset, board_to_clueset(neighbors.at(j)));
+
+            if (current_cost < best_cost) {
+                if (find(tabu.begin(), tabu.end(), neighbors.at(j)) == tabu.end()) {
+                    best_cost = current_cost;
+                    current_board = neighbors.at(j);
+                    found_better = true;
+                }
+                else {
+                    cout << "board already in tabu" << endl << endl;
+                }
+            }
+        }
+        if (found_better) {
+            tabu.push_back(current_board);
+            if (tabu.size() > tabu_size) {
+                tabu.pop_front();
+            }
+        }
+        i++;
     }
     return current_board;
 }

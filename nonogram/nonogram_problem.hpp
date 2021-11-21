@@ -29,6 +29,8 @@ board_t hillclimb(clue_t clueset, int iterations);
 
 board_t hillclimb_stch(clue_t clueset, int iterations);
 
+board_t tabu(clue_t clueset, int iterations, int tabu_size);
+
 clue_t load_clueset(std::string filename);
 
 void print_clueset(clue_t clueset);
