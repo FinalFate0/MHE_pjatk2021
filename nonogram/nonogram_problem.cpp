@@ -353,7 +353,7 @@ board_t tabu(clue_t clueset, int iterations, int tabu_size) {
             }
         }
         if (neighbors.size() == 0) {
-            cout << "all candidates in tabu; ending search..." << endl << endl;
+            cout << "all candidates already in tabu; ending..." << endl << endl;
             break;
         }
 
@@ -396,6 +396,9 @@ board_t tabu(clue_t clueset, int iterations, int tabu_size) {
         }
         if (i == iterations) {
             cout << "end of iterations reached; ending..." << endl << endl;
+        }
+        if (best_cost == 0) {
+            cout << "solution found; ending..." << endl << endl;
         }
     }
     return best_board;
