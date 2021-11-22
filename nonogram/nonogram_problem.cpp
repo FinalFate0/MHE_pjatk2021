@@ -278,7 +278,7 @@ board_t hillclimb(clue_t clueset, int iterations) {
         //cout << "cost: " << best_cost << endl << endl;
 
         found_better = false;
-        for (int j = 0; j < size_x*size_y; j++) {
+        for (int j = 0; j < neighbors.size(); j++) {
             double current_cost = cost_function(clueset, board_to_clueset(neighbors.at(j)));
 
             if (current_cost < best_cost) {
@@ -331,43 +331,67 @@ board_t tabu(clue_t clueset, int iterations, int tabu_size) {
     int size_x = clueset.first.size(), size_y = clueset.second.size();
 
     board_t current_board = gen_rand_board(size_x, size_y);
-    double best_cost = cost_function(clueset, board_to_clueset(current_board));
+    double current_cost = cost_function(clueset, board_to_clueset(current_board));
+    board_t best_board = current_board;
+    double best_cost = current_cost;
 
-    deque<board_t> tabu(tabu_size, current_board);
+    deque<board_t> tabu;
 
-    bool found_better = true;
     int i = 0;
 
-    while (found_better && i < iterations) {
+    while (i < iterations && best_cost > 0) {
         vector<board_t> neighbors = neighbour_list(current_board);
 
-        //print_board(current_board);
-        //cout << "cost: " << best_cost << endl << endl;
-
-        found_better = false;
-        for (int j = 0; j < size_x * size_y; j++) {
-            double current_cost = cost_function(clueset, board_to_clueset(neighbors.at(j)));
-
-            if (current_cost < best_cost) {
-                if (find(tabu.begin(), tabu.end(), neighbors.at(j)) == tabu.end()) {
-                    best_cost = current_cost;
-                    current_board = neighbors.at(j);
-                    found_better = true;
-                }
-                else {
-                    cout << "board already in tabu" << endl << endl;
-                }
+        auto iterator = neighbors.begin();
+        while (iterator != neighbors.end()) {
+            if (find(tabu.begin(), tabu.end(), *iterator) != tabu.end()) {
+                //cout << "board already in tabu" << endl << endl;
+                iterator = neighbors.erase(iterator);
+            }
+            else {
+                ++iterator;
             }
         }
-        if (found_better) {
-            tabu.push_back(current_board);
-            if (tabu.size() > tabu_size) {
-                tabu.pop_front();
+        if (neighbors.size() == 0) {
+            //cout << "all neighbors in tabu; ending search" << endl << endl;
+            break;
+        }
+
+        //print_board(current_board);
+        //cout << "cost: " << current_cost << endl << endl;
+
+        tabu.push_back(current_board);
+        //cout << "adding board to tabu" << endl << endl;
+
+        board_t best_candidate = neighbors.at(0);
+        double best_candidate_cost = cost_function(clueset, board_to_clueset(best_candidate));
+
+        int hit_count = 0;
+
+        for (int j = 0; j < neighbors.size(); j++) {
+            board_t current_candidate = neighbors.at(j);
+            double current_candidate_cost = cost_function(clueset, board_to_clueset(neighbors.at(j)));
+
+            if (current_candidate_cost < best_candidate_cost) {
+                best_candidate_cost = current_candidate_cost;
+                best_candidate = current_candidate;
             }
+        }
+
+        current_board = best_candidate;
+        current_cost = cost_function(clueset, board_to_clueset(current_board));
+
+        if (tabu.size() > tabu_size) {
+            tabu.pop_front();
+            //cout << "tabu max reached; erasing oldest entry" << endl << endl;
+        }
+        if (best_candidate_cost < best_cost) {
+            best_board = best_candidate;
+            best_cost = best_candidate_cost;
         }
         i++;
     }
-    return current_board;
+    return best_board;
 }
 
 board_t gen_rand_board(int size_x, int size_y) {

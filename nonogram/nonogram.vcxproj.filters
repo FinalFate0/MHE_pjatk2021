@@ -46,5 +46,11 @@
     <Text Include="10x10.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="20x15.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="15x15.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
