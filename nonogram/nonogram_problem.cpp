@@ -395,7 +395,7 @@ board_t tabu(clue_t clueset, int iterations, int tabu_size) {
             cout << "iteration " << i << endl;
         }
         if (i == iterations) {
-            cout << "end of iterations reached; ending..." << endl << endl;
+            cout << "max iteration reached; ending..." << endl << endl;
         }
         if (best_cost == 0) {
             cout << "solution found; ending..." << endl << endl;
