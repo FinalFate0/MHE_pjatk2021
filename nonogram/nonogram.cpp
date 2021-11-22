@@ -144,6 +144,8 @@ int main(int argc, char** argv) {
         }
     }
 
+    //TODO: check if arguments exist
+
     auto st_clock_before = steady_clock::now();
 
     if (method == "bruteforce") {

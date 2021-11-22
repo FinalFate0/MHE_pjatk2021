@@ -353,7 +353,7 @@ board_t tabu(clue_t clueset, int iterations, int tabu_size) {
             }
         }
         if (neighbors.size() == 0) {
-            //cout << "all neighbors in tabu; ending search" << endl << endl;
+            cout << "all candidates in tabu; ending search..." << endl << endl;
             break;
         }
 
@@ -361,7 +361,7 @@ board_t tabu(clue_t clueset, int iterations, int tabu_size) {
         //cout << "cost: " << current_cost << endl << endl;
 
         tabu.push_back(current_board);
-        //cout << "adding board to tabu" << endl << endl;
+        //cout << "adding board to tabu..." << endl << endl;
 
         board_t best_candidate = neighbors.at(0);
         double best_candidate_cost = cost_function(clueset, board_to_clueset(best_candidate));
@@ -389,7 +389,14 @@ board_t tabu(clue_t clueset, int iterations, int tabu_size) {
             best_board = best_candidate;
             best_cost = best_candidate_cost;
         }
+
         i++;
+        if (i % 1000 == 0) {
+            cout << "iteration " << i << endl;
+        }
+        if (i == iterations) {
+            cout << "end of iterations reached; ending..." << endl << endl;
+        }
     }
     return best_board;
 }
