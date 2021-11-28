@@ -123,6 +123,9 @@
     <Text Include="4x4.txt" />
     <Text Include="5x4.txt" />
     <Text Include="5x5.txt" />
+    <Text Include="6x6.txt" />
+    <Text Include="8x8.txt" />
+    <Text Include="9x9.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
