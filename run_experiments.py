@@ -2,8 +2,6 @@ import subprocess
 import re
 import numpy as np
 import pandas as pd
-from time import gmtime, strftime
-# import PyGnuplot as gp
 
 statistics = {
     # "bruteforce":[],
@@ -21,15 +19,15 @@ mean_statistics = {
 }
 
 problem_size = [
-    # "3x3",
-    # "3x4",
+    "3x3",
+    "3x4",
     "4x4",
     "5x4",
     "5x5",
     "6x6",
     "8x8",
-    # "9x9",
-    # "10x10",
+    "9x9",
+    "10x10",
     # "15x15"
     
 ]
@@ -37,9 +35,9 @@ problem_size = [
 
 for method_name in statistics:
     for problem in problem_size:
-        for repeat in range(0,1):
+        for repeat in range(0,5):
             output_name = "output.txt"
-            cmndName = "nonogram --output " + str(output_name) + " --input " + str(problem) +  ".txt --method " + method_name + " --iterations 1000000 --tabusize 20000"
+            cmndName = "nonogram --output " + str(output_name) + " --input " + str(problem) +  ".txt --method " + method_name + " --iterations 25000 --tabusize 64"
             print(cmndName)
             subprocess.run(['cmd.exe', '/c', cmndName])
             result = open(output_name)
@@ -58,7 +56,7 @@ for method_name in statistics:
             minutes = 0
             seconds = 0
             milliseconds = 0
-            microsecond = 0
+            microseconds = 0
             
             for unit in time:
                 unit_name = re.sub('\d', '', unit)
@@ -72,14 +70,12 @@ for method_name in statistics:
                 elif "ms" == unit_name:
                     milliseconds = int(unit_value)
                 elif "us" == unit_name:
-                    microsecond = int(unit_value)
+                    microseconds = int(unit_value)
+
+            microseconds_total = (hours*3600000000)+(minutes*60000000)+(seconds*1000000)+(milliseconds*1000)+microseconds
 
 
-            seconds_total = (hours*3600)+(minutes*60)+seconds
-            if milliseconds >= 500:
-                seconds_total += 1
-
-            statistics[method_name].append([problem, float(cost[0]), int(seconds_total)])
+            statistics[method_name].append([problem, float(cost[0]), int(microseconds_total)])
             
         cost_results = []
         time_results = []
@@ -89,7 +85,7 @@ for method_name in statistics:
             
         mean_cost = np.mean(cost_results)
         mean_time = np.mean(time_results)
-        mean_statistics[method_name].append([problem, float(mean_cost), strftime('%H:%M:%S', gmtime(int(mean_time)))])
+        mean_statistics[method_name].append([problem, float(mean_cost), float(mean_time)])
                 
 
 print(mean_statistics)
@@ -100,19 +96,60 @@ for method in mean_statistics:
 
     dataframe.to_csv(method + ".csv")
     
-    
-with open("gnuplot result.plt", "w") as gnuplotfile:
+biggest_results = []
+
+for method in mean_statistics:
+    for row in mean_statistics[method]:
+        if row[0] == problem_size[-1]:
+            biggest_results.append(row)
+
+dataframe = pd.DataFrame(biggest_results, columns=column_names)
+
+dataframe.to_csv("biggest_results.csv")
+
+
+
+with open("gnuplot time.plt", "w") as gnuplotfile:
     gnuplotfile.write("set term png\n")
-    gnuplotfile.write("set output \"result.png\"\n") 
+    gnuplotfile.write("set output \"time_to_size.png\"\n") 
+    gnuplotfile.write("set title \"Time to problem size\"\n") 
+    gnuplotfile.write("set xlabel \"Problem size\"\n") 
+    gnuplotfile.write("set ylabel \"Time\"\n") 
     gnuplotfile.write("set datafile separator \",\"\n")
-    gnuplotfile.write("set ydata time\n")
-    gnuplotfile.write("set timefmt \"%H:%M:%S\"\n")
-    gnuplotfile.write("set format y \"%H:%M:%S\"\n")
     gnuplotfile.write("plot ")
     for method_name in mean_statistics:
-        print(method_name)
+        # print(method_name)
         gnuplotfile.write("'" + method_name + ".csv' u 1:4 w lines, ") 
 
     gnuplotfile.write("\n") 
+    
+with open("gnuplot biggest.plt", "w") as gnuplotfile2:
+    gnuplotfile2.write("set term png\n")
+    gnuplotfile2.write("set output \"biggest_problem.png\"\n") 
+    gnuplotfile2.write("set title \"Cost to time for the biggest problem\"\n") 
+    gnuplotfile2.write("set xlabel \"Time\"\n") 
+    gnuplotfile2.write("set ylabel \"Cost\"\n") 
+    gnuplotfile2.write("set datafile separator \",\"\n")
+    gnuplotfile2.write("plot ")
+    # print("biggest problem")
+    gnuplotfile2.write("'biggest_results.csv' u 4:3 w lines, ") 
 
-subprocess.run(['cmd.exe', '/c', "gnuplot result.plt"])
+    gnuplotfile2.write("\n") 
+    
+with open("gnuplot cost.plt", "w") as gnuplotfile3:
+    gnuplotfile3.write("set term png\n")
+    gnuplotfile3.write("set output \"size_to_cost.png\"\n") 
+    gnuplotfile3.write("set title \"Cost to problem size\"\n") 
+    gnuplotfile3.write("set xlabel \"Problem size\"\n") 
+    gnuplotfile3.write("set ylabel \"Cost\"\n") 
+    gnuplotfile3.write("set datafile separator \",\"\n")
+    gnuplotfile3.write("plot ")
+    for method_name in mean_statistics:
+        # print(method_name)
+        gnuplotfile3.write("'" + method_name + ".csv' u 1:3 w lines, ") 
+
+    gnuplotfile3.write("\n") 
+
+subprocess.run(['cmd.exe', '/c', "gnuplot time.plt"])
+subprocess.run(['cmd.exe', '/c', "gnuplot biggest.plt"])
+subprocess.run(['cmd.exe', '/c', "gnuplot cost.plt"])
