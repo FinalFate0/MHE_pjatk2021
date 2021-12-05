@@ -31,6 +31,16 @@ board_t hillclimb_stch(clue_t clueset, int iterations);
 
 board_t tabu(clue_t clueset, int iterations, int tabu_size);
 
+board_t genetic(std::vector<board_t> initial_pop,
+				double fitness(board_t candidate),
+				std::vector<board_t> selection(),
+				std::pair<board_t, board_t> cross(),
+				board_t mutate(),
+				bool end_condition,
+				double cross_pr = 1.0,
+				double mutate_pr = 1.0
+	);
+
 clue_t load_clueset(std::string filename);
 
 void print_clueset(clue_t clueset);
