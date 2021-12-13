@@ -108,11 +108,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="genetic.cpp" />
     <ClCompile Include="nonogram.cpp" />
     <ClCompile Include="nonogram_problem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="genetic.hpp" />
     <ClInclude Include="nonogram_problem.hpp" />
+    <ClInclude Include="types.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="10x10.txt" />

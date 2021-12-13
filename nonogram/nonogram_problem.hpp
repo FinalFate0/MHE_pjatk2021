@@ -5,12 +5,9 @@
 #include <tuple>
 #include <sstream>
 #include <random>
+#include <functional>
 
-
-
-using axis_t = std::vector<std::vector<int>>;
-using clue_t = std::pair<axis_t, axis_t>;
-using board_t = std::vector<std::vector<bool>>;
+#include "types.hpp"
 
 
 double cost_function(clue_t target, clue_t candidate);
@@ -30,16 +27,6 @@ board_t hillclimb(clue_t clueset, int iterations);
 board_t hillclimb_stch(clue_t clueset, int iterations);
 
 board_t tabu(clue_t clueset, int iterations, int tabu_size);
-
-board_t genetic(std::vector<board_t> initial_pop,
-				double fitness(board_t candidate),
-				std::vector<board_t> selection(),
-				std::pair<board_t, board_t> cross(),
-				board_t mutate(),
-				bool end_condition,
-				double cross_pr = 1.0,
-				double mutate_pr = 1.0
-	);
 
 clue_t load_clueset(std::string filename);
 

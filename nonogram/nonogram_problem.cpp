@@ -1,13 +1,12 @@
-#include "nonogram_problem.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <random>
 #include <deque>
+#include <functional>
 
-std::random_device rd;
-std::mt19937 gen(rd());
+#include "nonogram_problem.hpp"
 
 double cost_function(clue_t target, clue_t candidate) {
     double cost = 0.0;
@@ -30,7 +29,7 @@ double cost_function(clue_t target, clue_t candidate) {
                 bigger_size = candidate_x.at(i).size();
             }
             else {
-                bigger_size = target_x.at(i).size();;
+                bigger_size = target_x.at(i).size();
             }
             for (int j = 0; j < bigger_size; j++) {
                 if (j >= candidate_x.at(i).size()) {
@@ -75,7 +74,7 @@ double cost_function(clue_t target, clue_t candidate) {
                 bigger_size = candidate_y.at(i).size();
             }
             else {
-                bigger_size = target_y.at(i).size();;
+                bigger_size = target_y.at(i).size();
             }
 
             for (int j = 0; j < bigger_size; j++) {
@@ -111,6 +110,8 @@ double cost_function(clue_t target, clue_t candidate) {
     }
     return cost;
 }
+
+
 
 clue_t board_to_clueset(board_t board) {
     int size_x = board.at(0).size();
@@ -295,6 +296,9 @@ board_t hillclimb(clue_t clueset, int iterations) {
 board_t hillclimb_stch(clue_t clueset, int iterations) {
     using namespace std;
 
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
     int size_x = clueset.first.size(), size_y = clueset.second.size();
     uniform_int_distribution<> distrib(0, (size_x*size_y)-1);
 
@@ -403,37 +407,10 @@ board_t tabu(clue_t clueset, int iterations, int tabu_size) {
     return best_board;
 }
 
-board_t genetic(std::vector<board_t> initial_pop,
-        double fitness(board_t candidate),
-        std::vector<board_t> selection(),
-        std::pair<board_t, board_t> cross(),
-        board_t mutate(),
-        bool end_condition(),
-        double cross_pr = 1.0,
-        double mutate_pr = 1.0) {
-
-    //maybe separate parameter functions into actual functions
-
-    std::vector<board_t> current_pop = initial_pop;
-
-    while(end_condition()) {
-
-
-    }
-
-    board_t best_candidate;
-    double best_candidate_fitness = 0;
-
-    for (auto& candidate : current_pop) {
-        if (fitness(candidate) > best_candidate_fitness) {
-            best_candidate = candidate;
-            best_candidate_fitness = fitness(candidate);
-        }
-    }
-    return best_candidate;
-}
-
 board_t gen_rand_board(int size_x, int size_y) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
     std::uniform_int_distribution<> distrib(0, 1);
 
     board_t board(size_y, std::vector<bool>(size_x, false));

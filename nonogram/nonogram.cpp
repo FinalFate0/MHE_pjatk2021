@@ -7,6 +7,7 @@
 #include <chrono>
 
 #include "nonogram_problem.hpp"
+#include "genetic.hpp"
 
 void print_time_elapsed(std::chrono::duration<double, std::milli> time_elapsed) {
     using namespace std::chrono;
@@ -33,6 +34,7 @@ int main(int argc, char** argv) {
     board_t solution;
     std::string method;
     long iterations = 0;
+    double target_fitness = 0.0;
     long tabu_size = 0;
 
     for (int i = 1; i < argc; ++i) {
@@ -85,7 +87,8 @@ int main(int argc, char** argv) {
                     if ((strcmp(argv[i], "bruteforce") == 0) || 
                         (strcmp(argv[i], "hillclimb") == 0) || 
                         (strcmp(argv[i], "hillclimb_stch") == 0) ||
-                        (strcmp(argv[i], "tabu") == 0)) {
+                        (strcmp(argv[i], "tabu") == 0) ||
+                        (strcmp(argv[i], "genetic") == 0)) {
                         method = std::string(argv[i]);
                     }
                     else {
@@ -164,7 +167,30 @@ int main(int argc, char** argv) {
         }
         solution = tabu(test_clueset, iterations, tabu_size);
     }
-    else {
+    else if (method == "genetic") {
+        auto end_condition_iter = [&iterations](int i, std::vector<board_t>) {
+            if (i >= iterations) {
+                return false;
+            }
+            else return true;
+        };
+
+        auto end_condition_average = [&target_fitness](int i, std::vector<board_t>) {
+            //TODO
+        };
+
+        std::vector<board_t> initial_population(8, gen_rand_board(test_clueset.first.size(),
+            test_clueset.second.size()));
+
+        solution = genetic(test_clueset,
+            initial_population,
+            fitness,
+            selection,
+            cross,
+            mutate,
+            end_condition_iter);
+
+    } else {
         std::cerr << "--method wasn't provided";
         return 2;
     }
