@@ -162,9 +162,6 @@ board_t genetic(clue_t clueset,
             new_pop.at(index) = mutate(new_pop.at(index));
         }
 
-        for (int j = 0; j < new_pop.size(); j++) {
-
-        }
         current_pop = new_pop;
         i++;
     }
