@@ -179,14 +179,16 @@ int main(int argc, char** argv) {
             //TODO
         };
 
-        std::vector<board_t> initial_population(8, gen_rand_board(test_clueset.first.size(),
-            test_clueset.second.size()));
-
+        std::vector<board_t> initial_population;
+        for (int i = 0; i < 8; i++) {
+            initial_population.push_back(gen_rand_board(test_clueset.first.size(),
+                test_clueset.second.size()));
+        }
         solution = genetic(test_clueset,
             initial_population,
             fitness,
-            selection,
-            cross,
+            selection_tourney,
+            cross_onepoint,
             mutate,
             end_condition_iter);
 
